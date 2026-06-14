@@ -33,6 +33,16 @@ public class ApiExceptionHandler {
         return errorResponse(HttpStatus.CONFLICT, exception.getMessage(), null);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException exception) {
+        return errorResponse(HttpStatus.NOT_FOUND, exception.getMessage(), null);
+    }
+
+    @ExceptionHandler(BusinessRuleException.class)
+    public ResponseEntity<Map<String, Object>> handleBusinessRule(BusinessRuleException exception) {
+        return errorResponse(HttpStatus.CONFLICT, exception.getMessage(), null);
+    }
+
     private ResponseEntity<Map<String, Object>> errorResponse(
             HttpStatus status,
             String message,

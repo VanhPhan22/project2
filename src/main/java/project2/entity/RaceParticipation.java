@@ -7,7 +7,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "RaceParticipation")
+@Table(
+        name = "RaceParticipation",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_participation_horse_schedule",
+                        columnNames = {"HorseId", "RaceScheduleId"}
+                ),
+                @UniqueConstraint(
+                        name = "uk_participation_lane_schedule",
+                        columnNames = {"lane_number", "RaceScheduleId"}
+                )
+        }
+)
 public class RaceParticipation {
 
     @Id
@@ -95,6 +107,10 @@ public class RaceParticipation {
     public RaceParticipation(RaceParticipationStatus status, Integer laneNumber) {
         this.status = status;
         this.laneNumber = laneNumber;
+    }
+
+    public Integer getId() {
+        return id;
     }
 
     public RaceParticipationStatus getStatus() {

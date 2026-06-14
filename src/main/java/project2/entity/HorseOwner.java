@@ -76,6 +76,10 @@ public class HorseOwner {
         this.email = email;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
     public String getFullName() {
         return fullName;
     }
@@ -128,4 +132,3 @@ public class HorseOwner {
                 '}';
     }
 }
-

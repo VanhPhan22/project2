@@ -108,6 +108,10 @@ public class Tournament {
         this.endDate = endDate;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }

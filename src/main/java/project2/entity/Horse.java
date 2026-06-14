@@ -90,6 +90,10 @@ public class Horse {
         this.healthStatus = healthStatus;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }

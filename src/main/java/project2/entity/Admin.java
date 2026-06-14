@@ -51,6 +51,10 @@ public class Admin {
         this.email = email;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
     public String getUserName() {
         return userName;
     }

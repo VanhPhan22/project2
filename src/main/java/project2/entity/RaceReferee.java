@@ -76,6 +76,10 @@ public class RaceReferee {
         this.email = email;
     }
 
+    public Integer getId() {
+        return id;
+    }
+
     public String getFullName() {
         return fullName;
     }
