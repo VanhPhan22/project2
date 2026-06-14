@@ -1,15 +1,10 @@
 package project2.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import project2.entity.Spectator;
 
-import java.util.Optional;
-
 public interface SpectatorRepo extends JpaRepository<Spectator, Integer> {
+    boolean existsByUserNameIgnoreCase(String userName);
 
-    boolean existsByEmail(String email);
-
-    Optional<Spectator> findByEmail(String email);
+    boolean existsByEmailIgnoreCase(String email);
 }

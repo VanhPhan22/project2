@@ -1,8 +1,6 @@
 package project2.entity;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,18 +15,12 @@ public class Spectator {
     private Integer id;
 
     @Column(name = "user_name", columnDefinition = "NVARCHAR(255)", nullable = false, unique = true)
-    @NotBlank(message = "The userName is required")
-    @Size(min = 4, max = 20, message = "The userName must be in bettwen 4 to 20 character length")
     private String userName;
 
-    @Column(name = "email", length = 100, nullable = false)
-    @NotBlank(message = "The email is required")
-    @Size(min = 4, max = 100, message = "The email must be in bettwen 4 to 100 character length")
+    @Column(name = "email", length = 100, nullable = false, unique = true)
     private String email;
 
-    @Column(name = "password", length = 255, nullable = false)
-    @NotBlank(message = "The password is requried")
-    @Size(min = 4, max = 255, message = "The password must be in bettwen 4 to 255 character length")
+    @Column(name = "password", length = 60, nullable = false)
     private String password;
 
     /*___________________________________________________________________________________________________________ */
@@ -75,6 +67,10 @@ public class Spectator {
         this.userName = userName;
         this.email = email;
         this.password = password;
+    }
+
+    public Integer getId() {
+        return id;
     }
 
     public String getUserName() {

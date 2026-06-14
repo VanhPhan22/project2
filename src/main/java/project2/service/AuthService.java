@@ -1,87 +1,51 @@
 package project2.service;
 
-import io.jsonwebtoken.Jwt;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import project2.dto.request.LoginRequest;
-import project2.dto.response.LoginResponse;
-import project2.entity.Jockey;
-import project2.entity.RaceReferee;
+import org.springframework.transaction.annotation.Transactional;
+import project2.dto.RegisterRequest;
+import project2.dto.RegisterResponse;
 import project2.entity.Spectator;
-import project2.repository.*;
+import project2.exception.DuplicateAccountException;
+import project2.repository.SpectatorRepo;
+
+import java.util.Locale;
 
 @Service
 public class AuthService {
 
-    private final PasswordEncoder passwordEncoder;
-    private final AdminRepo adminRepo;
-    private final HorseOwnerRepo horseOwnerRepo;
-    private final JockeyRepo jockeyRepo;
-    private final RaceRefereeRepo raceRefereeRepo;
     private final SpectatorRepo spectatorRepo;
-    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
 
-    public AuthService(PasswordEncoder passwordEncoder, AdminRepo adminRepo, HorseOwnerRepo horseOwnerRepo, JockeyRepo jockeyRepo, RaceRefereeRepo raceRefereeRepo, SpectatorRepo spectatorRepo, JwtService jwtService) {
-        this.passwordEncoder = passwordEncoder;
-        this.adminRepo = adminRepo;
-        this.horseOwnerRepo = horseOwnerRepo;
-        this.jockeyRepo = jockeyRepo;
-        this.raceRefereeRepo = raceRefereeRepo;
+    public AuthService(SpectatorRepo spectatorRepo, PasswordEncoder passwordEncoder) {
         this.spectatorRepo = spectatorRepo;
-        this.jwtService = jwtService;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public LoginResponse authenticate(LoginRequest request) {
-        String rawPassword = request.getPassword();
-        String encodedPasswordInDb = null;
-        String userRoleStr = request.getRole().name();
+    @Transactional
+    public RegisterResponse register(RegisterRequest request) {
+        String userName = request.userName().trim();
+        String email = request.email().trim().toLowerCase(Locale.ROOT);
 
-        // 1. Phân luồng tìm kiếm user dựa trên Role được truyền lên
-        switch (request.getRole()) {
-
-            case ADMIN:
-                var admin = adminRepo.findByEmail(request.getEmail())
-                        .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại!"));
-                encodedPasswordInDb = admin.getPassword();
-                break;
-
-            case SPECTATOR:
-                var spectator = spectatorRepo.findByEmail(request.getEmail())
-                        .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại!"));
-                encodedPasswordInDb = spectator.getPassword();
-                break;
-
-            case HORSE_OWNER:
-                var horseOwner = horseOwnerRepo.findByEmail(request.getEmail())
-                        .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại!"));
-                encodedPasswordInDb = horseOwner.getPassword();
-                break;
-
-            case JOCKEY:
-                var jockey = jockeyRepo.findByEmail(request.getEmail())
-                        .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại!"));
-                encodedPasswordInDb = jockey.getPassword();
-                break;
-
-            case RACE_REFEREE:
-                var referee = raceRefereeRepo.findByEmail(request.getEmail())
-                        .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại!"));
-                encodedPasswordInDb = referee.getPassword();
-                break;
-
-            default:
-                throw new RuntimeException("Vai trò đăng nhập không hợp lệ!");
+        if (spectatorRepo.existsByUserNameIgnoreCase(userName)) {
+            throw new DuplicateAccountException("Username is already registered");
+        }
+        if (spectatorRepo.existsByEmailIgnoreCase(email)) {
+            throw new DuplicateAccountException("Email is already registered");
         }
 
-        // 2. So sánh mật khẩu (Đáp ứng FK-04, BR-28: Không so sánh plain text)
-        if (!passwordEncoder.matches(rawPassword, encodedPasswordInDb)) {
-            throw new RuntimeException("Thông tin đăng nhập không chính xác!");
+        Spectator spectator = new Spectator(userName, email, passwordEncoder.encode(request.password()));
+        try {
+            Spectator savedSpectator = spectatorRepo.saveAndFlush(spectator);
+            return new RegisterResponse(
+                    savedSpectator.getId(),
+                    savedSpectator.getUserName(),
+                    savedSpectator.getEmail(),
+                    "SPECTATOR"
+            );
+        } catch (DataIntegrityViolationException exception) {
+            throw new DuplicateAccountException("Username or email is already registered");
         }
-
-        // 3. Tạo JWT Token thực tế
-        String token = jwtService.generateToken(request.getEmail(), userRoleStr);
-
-        // 4. Trả về thông tin cho Controller
-        return new LoginResponse(token, userRoleStr, "Đăng nhập thành công!");
     }
 }

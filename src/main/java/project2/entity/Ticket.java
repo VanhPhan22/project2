@@ -47,7 +47,7 @@ public class Ticket {
     //MAPPING MỐI QUAN HỆ GIỮA Ticket - Spectator
     //1, N Ticket bất kỳ phải thuộc về 1 Spectator
     @ManyToOne
-    @JoinColumn(name = "SpectatorId")
+    @JoinColumn(name = "Spectator")
     private Spectator spectator;
 
     public Spectator getSpectator() {

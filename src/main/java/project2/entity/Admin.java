@@ -17,7 +17,7 @@ public class Admin {
     @Column(name = "user_name", columnDefinition = "NVARCHAR(255)", nullable = false, unique = true)
     private String userName;
 
-    @Column(name = "password", length = 255, nullable = false)
+    @Column(name = "password", length = 50, nullable = false)
     private String password;
 
     @Column(name = "email", length = 100, nullable = false, unique = true)
